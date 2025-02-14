@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+import os
+import sys
+
+# Ensure the repository root is on sys.path so that the cgeqc package is found
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 import argparse
 from cgeqc.trim import TrimRunner
