@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import argparse
+from cgeqc.trim import TrimRunner
+from cgeqc.version import __version__
+from cgeqc.qc_config import TRIM_DEFAULTS
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="CGE Quality Control Tool (cgeqc): Trimming and QC Report Generation."
+    )
+    parser.add_argument("-i", "--input", required=True, help="Path to the input FASTQ file")
+    parser.add_argument("-o", "--output", default=".", help="Output directory for trimmed file and QC report")
+    parser.add_argument("-n", "--name", required=True, help="Sample name identifier")
+    parser.add_argument("--min_length", type=int, help="Minimum read length for trimming")
+    parser.add_argument("--max_length", type=int, help="Maximum read length for trimming")
+    parser.add_argument("--min_phred", type=int, help="Minimum phred score for trimming")
+    parser.add_argument("--min_internal_phred", type=int, help="Minimum internal phred score for trimming")
+    parser.add_argument("--min_average_quality", type=int, help="Minimum average quality for trimming")
+    parser.add_argument("--trim_5_prime", type=int, help="Number of bases to trim from the 5' end")
+    parser.add_argument("--trim_3_prime", type=int, help="Number of bases to trim from the 3' end")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Override default trim parameters if provided
+    if args.min_length is not None:
+        TRIM_DEFAULTS['min_length'] = args.min_length
+    if args.max_length is not None:
+        TRIM_DEFAULTS['max_length'] = args.max_length
+    if args.min_phred is not None:
+        TRIM_DEFAULTS['min_phred'] = args.min_phred
+    if args.min_internal_phred is not None:
+        TRIM_DEFAULTS['min_internal_phred'] = args.min_internal_phred
+    if args.min_average_quality is not None:
+        TRIM_DEFAULTS['min_average_quality'] = args.min_average_quality
+    if args.trim_5_prime is not None:
+        TRIM_DEFAULTS['trim_5_prime'] = args.trim_5_prime
+    if args.trim_3_prime is not None:
+        TRIM_DEFAULTS['trim_3_prime'] = args.trim_3_prime
+
+    # Run the trimming and QC process
+    runner = TrimRunner(input_file=args.input, output_dir=args.output, name=args.name)
+    trimmed_file = runner.run()
+    print(f"Trimming complete. Trimmed file: {trimmed_file}")
+
+if __name__ == "__main__":
+    main()
+
