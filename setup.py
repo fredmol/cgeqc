@@ -18,15 +18,10 @@ setup(
         "Jinja2>=3.1.4",
         "matplotlib>=3.9.2"
     ],
-    author="Frederik Duus Møller",
-    author_email="freddu@food.dtu.dk",
+    author="Malte B. Hallgren",
+    author_email="malhal@food.dtu.dk",
     description="CGE Quality Control Tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    entry_points={
-        "console_scripts": [
-            "cgeqc=bin.cgeqc:main"
-        ]
-    },
+    scripts=["bin/cgeqc"],
 )
-

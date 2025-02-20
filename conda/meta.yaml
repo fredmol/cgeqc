@@ -1,0 +1,30 @@
+package:
+  name: cgeqc
+  version: 1.0.0
+
+source:
+  url: https://github.com/fredmol/cgeqc/archive/refs/tags/1.0.0.tar.gz
+
+build:
+  number: 0
+  noarch: python
+  script: '{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv'
+
+requirements:
+  build:
+    - python >=3.6
+    - pip
+    - setuptools  # <- Add this here!
+  host:
+    - python >=3.6
+    - pip
+    - setuptools
+  run:
+    - python >=3.6
+    - setuptools
+
+about:
+  home: https://github.com/fredmol/cgeqc
+  summary: CGE quality control tool
+  license: Apache-2.0
+

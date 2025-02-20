@@ -40,4 +40,3 @@ yaml_str = yaml.dump(data, sort_keys=False)
 
 with open('conda/meta.yaml', 'w') as f:
     f.write(yaml_str)
-
