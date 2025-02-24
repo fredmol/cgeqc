@@ -12,7 +12,7 @@ class TrimRunner():
         self.logger.setLevel(logging.INFO)
         self.input_file = input_file
         self.output_dir = output_dir
-        self.trimmed_name = f"{name}_trimmed"
+        self.trimmed_name = f"{name}"
         self.trimmed_output_path = os.path.join(self.output_dir, self.trimmed_name)
         self.parameters = TRIM_DEFAULTS
 
