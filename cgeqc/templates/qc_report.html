@@ -26,15 +26,19 @@
                 <div class="section">
                     <!-- Quality Assessment Card - with colored background -->
                     <div class="quality-assessment-card {{ metrics.quality_assessment.status }}">
+
                         <div class="quality-header">
                             <div class="quality-status">
                                 Quality Assessment: {{ metrics.quality_assessment.status | upper }}
                             </div>
                             <div class="sample-info">
-                                <span class="label">Sample name:</span>
+                                <span class="label">Sample:</span>
                                 <span class="value">{{ name }}</span>
+                                <span class="dataset-type-pill {{ pipeline_type }}">{{ pipeline_type|capitalize }}</span>
                             </div>
                         </div>
+
+                        
                         <div class="quality-content">
                             {% if metrics.quality_assessment.status == 'good' %}
                             <p>The sequencing data shows good quality metrics. This indicates a good dataset suitable for standard analysis pipelines.</p>
@@ -58,10 +62,12 @@
                     </div>
                     {% endif %}
                     
-                    <!-- Estimated Coverage Info Card -->
+                    <!-- Estimated Coverage Info Card - only show for bacterial -->
+                    {% if pipeline_type == 'bacterial' %}
                     <div class="metric-info-card" style="grid-column: span 3; margin-top: 0.5rem;">
                         <p>* Sequencing depth/depth of coverage is estimated assuming a bacterial genome size of 5 million base pairs.</p>
                     </div>
+                    {% endif %}
         
                     <!-- Key Metrics Section -->
                     <div class="metrics-overview" style="margin-top: 2rem;">
@@ -69,10 +75,25 @@
                             <span class="metric-value">{{ metrics.mean_quality }}</span>
                             <span class="metric-label">Mean Quality Score</span>
                         </div>
+                        
+                        {% if pipeline_type == 'bacterial' %}
+                        <!-- Bacterial specific metrics -->
                         <div class="metric-card" style="background: white; border: 1px solid #e2e8f0;">
                             <span class="metric-value">{{ metrics.gc_content }}%</span>
                             <span class="metric-label">GC Content</span>
                         </div>
+                        <div class="metric-card" style="background: white; border: 1px solid #e2e8f0;">
+                            <span class="metric-value">{{ metrics.estimated_coverage }}x</span>
+                            <span class="metric-label">Est. Coverage*</span>
+                        </div>
+                        {% else %}
+                        <!-- Viral and metagenomic specific metrics -->
+                        <div class="metric-card" style="background: white; border: 1px solid #e2e8f0;">
+                            <span class="metric-value">{{ '{:,.1f}'.format(metrics.bp_count/1000000) }} Mbp</span>
+                            <span class="metric-label">Total Base Pairs</span>
+                        </div>
+                        {% endif %}
+                        
                         <div class="metric-card" style="background: white; border: 1px solid #e2e8f0;">
                             <span class="metric-value">{{ '{:,}'.format(metrics.n50) }}</span>
                             <span class="metric-label">N50 (bp)</span>
@@ -174,7 +195,7 @@
                 Distribution of quality scores across all reads. Higher scores indicate better quality.
             </div>
             <div class="assessment-note">
-                Note: The dashed green line shows the typical quality score distribution for ONT bacterial isolate data. 
+                Note: The dashed green line shows the typical quality score distribution for ONT {{ pipeline_type }} data. 
                 If your data's distribution is shifted to the right of this reference line, it indicates higher quality scores than typical. 
                 Conversely, if the distribution is shifted to the left, it suggests lower quality scores than typical.
             </div>
@@ -195,4 +216,3 @@
     </div>
 </body>
 </html>
-

@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import argparse
 from cgeqc.trim import TrimRunner
 from cgeqc.version import __version__
-from cgeqc.qc_config import TRIM_DEFAULTS
+from cgeqc.qc_config import BACTERIAL_TRIM_DEFAULTS, VIRAL_TRIM_DEFAULTS, METAGENOMIC_TRIM_DEFAULTS, KMA_DEFAULTS
 
 def main():
     parser = argparse.ArgumentParser(
@@ -17,6 +17,8 @@ def main():
     parser.add_argument("-i", "--input", required=True, help="Path to the input FASTQ file")
     parser.add_argument("-o", "--output", default=".", help="Output directory for trimmed file and QC report")
     parser.add_argument("-n", "--name", required=True, help="Sample name identifier")
+    parser.add_argument("--pipeline", choices=["bacterial", "viral", "metagenomic"], default="bacterial", 
+                        help="Pipeline type to use appropriate quality thresholds for reporting")
     parser.add_argument("--min_length", type=int, help="Minimum read length for trimming")
     parser.add_argument("--max_length", type=int, help="Maximum read length for trimming")
     parser.add_argument("--min_phred", type=int, help="Minimum phred score for trimming")
@@ -29,24 +31,98 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
 
-    # Override default trim parameters if provided
+    # Select the appropriate defaults based on pipeline (for backward compatibility)
+    if args.pipeline == "viral":
+        print(f"Using viral pipeline settings for QC evaluation")
+        trim_defaults = VIRAL_TRIM_DEFAULTS.copy()
+    elif args.pipeline == "metagenomic":
+        print(f"Using metagenomic pipeline settings for QC evaluation")
+        trim_defaults = METAGENOMIC_TRIM_DEFAULTS.copy()
+    else:  # Default to bacterial
+        print(f"Using bacterial pipeline settings for QC evaluation")
+        trim_defaults = BACTERIAL_TRIM_DEFAULTS.copy()
+    
+    # Check if any parameters are provided - if not, use KMA defaults
+    if not any([args.min_length, args.max_length, args.min_phred, 
+                args.min_internal_phred, args.min_average_quality,
+                args.trim_5_prime, args.trim_3_prime]):
+        # No parameters specified, use KMA defaults
+        trim_defaults = KMA_DEFAULTS.copy()
+        print("No trim parameters specified, using KMA defaults")
+    
+    # Track custom parameters
+    custom_params = []
+    
+    # Override default trim parameters if provided and validate them
     if args.min_length is not None:
-        TRIM_DEFAULTS['min_length'] = args.min_length
+        if args.min_length < 1:
+            print(f"WARNING: Invalid min_length ({args.min_length}). Must be greater than 0. Using default: {trim_defaults['min_length']}")
+        else:
+            custom_params.append("min_length")
+            trim_defaults['min_length'] = args.min_length
+    
     if args.max_length is not None:
-        TRIM_DEFAULTS['max_length'] = args.max_length
+        if args.max_length < trim_defaults['min_length']:
+            print(f"WARNING: Invalid max_length ({args.max_length}). Must be greater than min_length ({trim_defaults['min_length']}). Using default: {trim_defaults['max_length']}")
+        else:
+            custom_params.append("max_length")
+            trim_defaults['max_length'] = args.max_length
+    
     if args.min_phred is not None:
-        TRIM_DEFAULTS['min_phred'] = args.min_phred
+        if args.min_phred < 0 or args.min_phred > 40:
+            print(f"WARNING: Invalid min_phred ({args.min_phred}). Must be between 0 and 40. Using default: {trim_defaults['min_phred']}")
+        else:
+            custom_params.append("min_phred")
+            trim_defaults['min_phred'] = args.min_phred
+    
     if args.min_internal_phred is not None:
-        TRIM_DEFAULTS['min_internal_phred'] = args.min_internal_phred
+        if args.min_internal_phred < 0 or args.min_internal_phred > 40:
+            print(f"WARNING: Invalid min_internal_phred ({args.min_internal_phred}). Must be between 0 and 40. Using default: {trim_defaults['min_internal_phred']}")
+        else:
+            custom_params.append("min_internal_phred")
+            trim_defaults['min_internal_phred'] = args.min_internal_phred
+    
     if args.min_average_quality is not None:
-        TRIM_DEFAULTS['min_average_quality'] = args.min_average_quality
+        if args.min_average_quality < 0 or args.min_average_quality > 40:
+            print(f"WARNING: Invalid min_average_quality ({args.min_average_quality}). Must be between 0 and 40. Using default: {trim_defaults['min_average_quality']}")
+        else:
+            custom_params.append("min_average_quality")
+            trim_defaults['min_average_quality'] = args.min_average_quality
+    
     if args.trim_5_prime is not None:
-        TRIM_DEFAULTS['trim_5_prime'] = args.trim_5_prime
+        if args.trim_5_prime < 0:
+            print(f"WARNING: Invalid trim_5_prime ({args.trim_5_prime}). Must be non-negative. Using default: {trim_defaults['trim_5_prime']}")
+        else:
+            custom_params.append("trim_5_prime")
+            trim_defaults['trim_5_prime'] = args.trim_5_prime
+    
     if args.trim_3_prime is not None:
-        TRIM_DEFAULTS['trim_3_prime'] = args.trim_3_prime
+        if args.trim_3_prime < 0:
+            print(f"WARNING: Invalid trim_3_prime ({args.trim_3_prime}). Must be non-negative. Using default: {trim_defaults['trim_3_prime']}")
+        else:
+            custom_params.append("trim_3_prime")
+            trim_defaults['trim_3_prime'] = args.trim_3_prime
+    
+    # Only print QC parameters once, with asterisks for default values
+    print("\nQC PARAMETERS:")
+    for param, value in trim_defaults.items():
+        # Add asterisk to indicate default value
+        is_default = param not in custom_params
+        if param == 'max_length' and value == 2147483647:
+            print(f"  - {param}: none" + (" (default)" if is_default else ""))
+        else:
+            print(f"  - {param}: {value}" + (" (default)" if is_default else ""))
+    
+    print("\nStarting quality control processing...")
 
     # Run the trimming and QC process
-    runner = TrimRunner(input_file=args.input, output_dir=args.output, name=args.name)
+    runner = TrimRunner(
+        input_file=args.input, 
+        output_dir=args.output, 
+        name=args.name, 
+        pipeline_type=args.pipeline,
+        parameters=trim_defaults
+    )
     trimmed_file = runner.run()
     print(f"Trimming complete. Trimmed file: {trimmed_file}")
 

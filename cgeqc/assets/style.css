@@ -640,3 +640,89 @@ body {
     margin-top: 4px;
     font-style: italic;
 }
+
+
+/* ====================================
+ * DATASET TYPE BANNER STYLES
+ * ==================================== */
+
+.dataset-type-banner {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dataset-type-banner.bacterial {
+    background-color: rgba(76, 175, 80, 0.15);
+    border-left: 4px solid #4caf50;
+}
+
+.dataset-type-banner.viral {
+    background-color: rgba(33, 150, 243, 0.15);
+    border-left: 4px solid #2196F3;
+}
+
+.dataset-type-banner.metagenomic {
+    background-color: rgba(156, 39, 176, 0.15);
+    border-left: 4px solid #9c27b0;
+}
+
+.dataset-label {
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.dataset-value {
+    font-size: 1.1em;
+}
+
+
+
+
+
+/* Dataset type pill styling */
+.dataset-type-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-left: 10px;
+    font-weight: 500;
+}
+
+.dataset-type-pill.bacterial {
+    background-color: rgba(76, 175, 80, 0.15);
+    border: 1px solid #4caf50;
+    color: #2e7d32;
+}
+
+.dataset-type-pill.viral {
+    background-color: rgba(33, 150, 243, 0.15);
+    border: 1px solid #2196F3;
+    color: #1565c0;
+}
+
+.dataset-type-pill.metagenomic {
+    background-color: rgba(156, 39, 176, 0.15);
+    border: 1px solid #9c27b0;
+    color: #7b1fa2;
+}
+
+/* Remove the old unused dataset banner styles */
+.dataset-type-banner,
+.dataset-label,
+.dataset-value {
+    display: none;
+}
+
+
+
+
+/* Fix for empty first page */
+@page :first {
+    margin-top: 1cm;
+}
