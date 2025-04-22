@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0] - 2025-04-22
+### Added
+- Cross-platform support improved for Linux and Mac
+- Consistent version handling across the package
+- Expanded documentation in README
+
+### Changed
+- Updated author contact information
+- Improved dependency specifications in setup.py and conda files
+- Switched repository from GitHub to Bitbucket
+
+### Fixed
+- Version synchronization between version.py and setup.py
+- Package metadata in setup.py to include template and asset files
+- Added missing dependencies (scipy, numpy) to requirements
+
 ## [1.1.0] - 2025-02-28
 ### Added
 - Data type-specific quality assessment

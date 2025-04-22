@@ -5,10 +5,12 @@ channels:
   - genomicepidemiology
   - defaults
 dependencies:
+  - kma>=1.4.9
   - python>=3.9
   - pip
+  - numpy>=1.24.0
+  - scipy>=1.10.0
   - pip:
     - weasyprint>=63.0
     - Jinja2>=3.1.4
     - matplotlib>=3.9.2
-    - scipy
